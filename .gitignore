@@ -1,4 +1,4 @@
-env
+.env
 venv/
 discord.log
 __pycache__/

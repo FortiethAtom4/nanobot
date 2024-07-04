@@ -17,7 +17,7 @@
 
 # The parent class of all entities in this game.
 # Instantiates some default values; subclasses will overwrite them.
-# Will include some methods all entities will share, such as attacking and ability usage.
+# Will include stats and methods all entities will share.
 
 from collections import namedtuple
 
@@ -62,7 +62,7 @@ class Entity:
     def init_warrior(self):
         self.pclass = "Warrior"
         self.psubclass = ""
-        self.maxhp = [20,5]
+        self.maxhp = [25,5]
         self.atk = [3,1]
         self.defense = [0.1,0.005]
         self.currenthp = self.maxhp[0]
@@ -70,14 +70,14 @@ class Entity:
     def init_mage(self):
         self.pclass = "Mage"
         self.psubclass = ""
-        self.maxhp = [15,1]
+        self.maxhp = [15,2]
         self.atk = [3,1]
         self.currenthp = self.maxhp[0]
 
     def init_ranger(self):
         self.pclass = "Ranger"
         self.psubclass = ""
-        self.maxhp = [15,1]
+        self.maxhp = [15,2]
         self.atk = [5,2]
         self.currenthp = self.maxhp[0]
 
@@ -97,11 +97,6 @@ class Entity:
         self.defense = [0.1,0]
         self.currenthp = self.maxhp[0]
 
-    # attack another Entity.
-    def attack(self,target):
-        damage_dealt = self.atk * (1 - target.defense)
-        # target.hp = 0 if target.hp - damage_dealt <= 0 else target.hp-damage_dealt
-
     def get_level_req(self):
         return 10 + 2 * ((self.level - 1) ** 2)
 
@@ -111,7 +106,7 @@ class Entity:
 
     # Level up, increasing stats accordingly and returning a level up message.
     # XP function: levelxp = 10 + 2 * (level - 1) ^ 2
-    def level_up(self):
+    def level_up(self,xp_gained):
         # not sure how closely python follows pemdas
         xp_req = 10 + 2 * ((self.level - 1) ** 2)
         level_up = False
@@ -129,25 +124,53 @@ class Entity:
             # overflow xp
             self.xp -= xp_req
 
+            # Increase stats for each level gained (minimum 1 level)
             self.level += 1
             self.maxhp[0] += self.maxhp[1]
             self.currenthp = self.maxhp
             self.atk[0] += self.atk[1]
             self.defense[0] += self.defense[1]
+
+            # change xp requirement to match new level
             xp_req = 10 + 2 * ((self.level - 1) ** 2)
         
         if level_up:
-            return f'''Congratulations, {self.name}! You have leveled up!
+            return f'''Gained {xp_gained} XP!
+Congratulations, {self.name}! You have leveled up!
 Level: {oldlevel} >> {self.level}
 Maximum HP: {oldmaxhp} >> {self.maxhp[0]}
 Attack: {oldatk} >> {self.atk[0]} {f"\nDefense: {round(olddef * 100,2)}% >> {round(self.defense[0] * 100,2)}%" if self.defense[1] > 0 else ""}'''
         else:
-            return "XP increased. No levelups detected."
+            return f"Gained {xp_gained} XP!"
 
+    # Grants experience to the entity. Levels the entity up as needed.
+    def gain_xp(self,value):
+        self.xp += value
+        return self.level_up(value)
+    
+    # Grants exactly enough experience to level the entity up [value] times.
+    def gain_levels(self,value):
+        cur_level = self.level + 1
+        cur_xp_req = 10 + 2 * ((self.level - 1) ** 2)
 
+        # start with exactly enough to level up once
+        running_total_xp = cur_xp_req - self.xp
+
+        # if more than one levelup, continue adding to total
+        for i in range(0,value - 1):
+            cur_xp_req = 10 + 2 * ((cur_level - 1) ** 2)
+            running_total_xp += cur_xp_req
+            cur_level += 1
+
+        # do the deed
+        self.xp += running_total_xp
+        return self.level_up(running_total_xp)
+  
+
+    # deprecated
     def test_xp(self):
         self.xp += 1000
-        return self.level_up()
+        return self.level_up(1000)
 
 # A subclass used for all enemies.
 class Enemy(Entity):
@@ -166,6 +189,11 @@ class Enemy(Entity):
     def init_no_class_enemy(self):
         self.pclass = "None"
         
+
+# attack another Entity.
+def attack(entity: Entity, target: Entity):
+    damage_dealt = entity.atk * (1 - target.defense)
+    target.currenthp = 0 if target.currenthp - damage_dealt <= 0 else target.currenthp - damage_dealt
 
 # Abilities will be a dict comprised of:
 # name
