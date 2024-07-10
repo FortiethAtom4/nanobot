@@ -4,13 +4,17 @@
 import os
 import discord
 import logging
-import db
 from discord.ext import commands
 from dotenv import load_dotenv
 
+# local imports
+import db
+import menus
+
+
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-intents = discord.Intents.all()
+intents = discord.Intents.all() #TODO: definitely doesn't need everything. Reduce later.
 
 bot = commands.Bot(intents=intents)
 
@@ -65,27 +69,17 @@ async def on_message(message: discord.Message):
 
 # /start
 # instantiates a new PlayerClass, assigns it to the player, and persists it to the database.
-@bot.slash_command(
-    name="start",
-    guild_ids=[825590571606999040],
-    description="Choose a class: Warrior, Mage, Ranger, General, Trickster"
-)
-async def add_new_user(ctx,player_class: str):
-    # check if player has made a class before
-    valid_classes=["warrior","mage","ranger","general","trickster"]
-    if player_class.lower() not in valid_classes:
-        await ctx.respond("Sorry, that is not a valid class.")
-        return
-    # attempt to insert a new user
-    newplayer = db.insert_new_user(ctx.user.name,player_class)
-    if newplayer == -1:
-        await ctx.respond("You already have a character!")
-        return
-    await ctx.respond(f'''Successfully created a new character for {ctx.user.name}!
-Class: {newplayer.pclass}
-HP: {newplayer.maxhp[0]}
-ATK: {newplayer.atk[0]}
-Defense: {newplayer.defense[0] * 100}%''')
+# async def add_new_user(ctx,player_class: str):
+#     # attempt to insert a new user
+#     newplayer = db.insert_new_user(ctx.user.name,player_class)
+#     if newplayer == -1:
+#         await ctx.respond("You already have a character!")
+#         return
+#     await ctx.respond(f'''Successfully created a new character for {ctx.user.name}!
+# Class: {newplayer.pclass}
+# HP: {newplayer.maxhp[0]}
+# ATK: {newplayer.atk[0]}
+# Defense: {newplayer.defense[0] * 100}%''')
 
 # /stats
 # check your character stats.
@@ -108,11 +102,11 @@ Defense: {round(stats.defense[0] * 100,2)}%''')
 
 
 # /delete
-# Deletes a user's character from the database. TODO
+# Deletes a user's character from the database.
 @bot.slash_command(
     name="delete",
     guild_ids=[825590571606999040],
-    description="Deletes your character permanently. This command cannot be undone."
+    description="Deletes your character permanently. WARNING: this cannot be undone."
 )
 async def delete_user(ctx: discord.ApplicationContext):
     res = db.delete_user(ctx.user.name)
@@ -124,13 +118,37 @@ async def delete_user(ctx: discord.ApplicationContext):
 @bot.slash_command(
     name="xp",
     guild_ids=[825590571606999040],
+    description="test xp function"
+)
+async def gain_xp(ctx: discord.ApplicationContext, value: int):
+    player_entity = db.find_user(ctx.user.name)
+    await ctx.respond(player_entity.gain_xp(value))
+    print(db.update_stats(player_entity))
+
+@bot.slash_command(
+    name="levelup",
+    guild_ids=[825590571606999040],
     description="test level-up function"
 )
-async def gain_xp(ctx: discord.ApplicationContext):
+async def gain_levels(ctx: discord.ApplicationContext, value: int):
     player_entity = db.find_user(ctx.user.name)
-    await ctx.respond(player_entity.test_xp())
+    if player_entity == -1:
+        await ctx.respond("User not found!")
+        return
+    await ctx.respond(player_entity.gain_levels(value))
     print(db.update_stats(player_entity))
-    pass
+   
+
+@bot.slash_command(
+    name="start",
+    guild_ids=[825590571606999040],
+    description="Creates your new character with a starting class."   
+)
+async def create_character(ctx: discord.ApplicationContext):
+    select = menus.characterSelect()
+    view = discord.ui.View(select)
+    await ctx.respond("Choose your class.",view=view)
+
 
 # run the bot
 bot.run(TOKEN)
