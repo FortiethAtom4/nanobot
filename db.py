@@ -73,6 +73,7 @@ def find_user(name):
         if not isnewplayer:
             return -1
         
+        # this is scuffed... but... it works...?
         isnewplayer = dict(isnewplayer)
         del isnewplayer["_id"]
         return_entity = entities.Entity(isnewplayer.get("name"))
