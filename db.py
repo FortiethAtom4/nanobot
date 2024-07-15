@@ -78,7 +78,6 @@ def find_user(name):
         del isnewplayer["_id"]
         return_entity = entities.Entity(isnewplayer.get("name"))
         del isnewplayer["name"]
-
         return_entity.init_from_dict(**isnewplayer)
         return return_entity
 
