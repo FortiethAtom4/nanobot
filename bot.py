@@ -25,41 +25,7 @@ handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w'
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-# MISC COMMANDS
-# This first section is a collection of miscellaneous commands or events NanoBot watches.
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# login successful
-@bot.event
-async def on_ready():
-    print(f'Successfully logged in as {bot.user}')
-
-# /checkup
-# gives some tech info about NanoBot. 
-@bot.slash_command(
-    name="checkup",
-    guild_ids=[825590571606999040],
-    description="Gives technical information about the bot."
-)
-async def checkup(ctx): 
-    await ctx.respond(f'''Hello, {ctx.user.name}! Thanks for checking on me.
-Current latency: {round(bot.latency*1000,3)}ms
-Database status: {"Online" if db.test_connection() != -1 else "Connection failed"}''')
-
-# /add
-# adds two numbers together. A test function.
-@bot.slash_command(
-    name="add",
-    guild_ids=[825590571606999040]
-)
-async def add(ctx,first: int, second: int):
-    await ctx.respond(f"the sum of {first} and {second} is {first + second}.")
-
-# Nano gets a bit nervous if you mention the word "key."
-@bot.event
-async def on_message(message: discord.Message):
-    if not message.author.bot and "key" in message.content.lower():
-        await message.channel.send("\U0001F5FF")
 
 
 # RPG COMMANDS
@@ -137,6 +103,51 @@ async def gain_levels(ctx: discord.ApplicationContext, value: int):
     await ctx.respond(player_entity.gain_levels(value))
     print(db.update_stats(player_entity))
    
+# MISC COMMANDS
+# This section is a collection of miscellaneous commands or events NanoBot watches.
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+# /add
+# adds two numbers together. A test function.
+@bot.slash_command(
+    name="add",
+    guild_ids=[825590571606999040]
+)
+async def add(ctx,first: int, second: int):
+    await ctx.respond(f"the sum of {first} and {second} is {first + second}.")
+
+# Nano gets a bit nervous if you mention the word "key."
+@bot.event
+async def on_message(message: discord.Message):
+    if not message.author.bot and "key" in message.content.lower():
+        await message.channel.send("\U0001F5FF")
+
+
+# ADMIN COMMANDS
+# This section contains technical commands/events restricted to the bot owner and/or bot admins.
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Print statement when the bot successfully comes online.
+@bot.event
+async def on_ready():
+    print(f'''Successfully logged in as {bot.user}.
+Current latency: {round(bot.latency*1000,3)}ms''')
+
+# /checkup
+# gives some tech info about NanoBot. 
+@bot.slash_command(
+    name="checkup",
+    guild_ids=[825590571606999040],
+    description="Gives technical information about the bot. Owner-only."
+)
+@commands.is_owner()
+async def checkup(ctx): 
+    await ctx.respond(f'''Hello, {ctx.user.name}! Thanks for checking on me.
+Current latency: {round(bot.latency*1000,3)}ms
+Database status: {"Online" if db.test_connection() != -1 else "Connection failed"}''')
+
+
 @bot.slash_command(
     name="shutdown",
     guild_ids=[825590571606999040],
