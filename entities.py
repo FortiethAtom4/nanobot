@@ -1,3 +1,46 @@
+
+
+
+
+# Object which stores an ability's information and usage logic.
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class Ability():
+    def __init__(self, name: str, description: str, value: int = 0, uses: int = 0, properties: dict = {}):
+        self.name = name
+        self.description = description
+        self.value = value
+        self.uses = uses
+
+        # this dict will be used to store data for abilities with unique parameters.
+        self.properties = properties
+
+    # Adds a property to an ability during runtime. Not sure how useful this will be, but could add some fun mechanics.
+    def set_property(self, pname: str, pvalue):
+        self.properties[pname] = pvalue
+
+#   Ability logic is done on a case-by-case basis, because creating a whole pseudolanguage again sounds like a royal pain.
+    def use_ability(self,entity: Entity): # type: ignore
+        match self.name:
+
+#           Name: Second Wind
+#           Targets: Self
+#           Parameter(s): value
+#           Description: Heals the caster. 
+            case "Second Wind":
+                entity.heal(self.value)
+
+#           Name: Firebolt
+#           Targets: 1 enemy
+#           Parameter(s): value
+#           Description: Deals damage to an enemy. Blocking negates the damage.
+            case "Firebolt":
+                pass
+
+            case _:
+                print("Error: unrecognized ability detected.")
+
+
+
 # User stats:
 # ID
 # name
@@ -21,26 +64,29 @@
 
 from collections import namedtuple
 
+# local imports
+import globals
+
 class Entity:
     def __init__(self,name):
-        self.pclass = ""
-        self.psubclass = ""
-        self.name=name
-        self.xp = 0
-        self.level = 1
-        self.equipped_abilities = []
-        self.other_abilities = []
+        self.pclass: str = ""
+        self.psubclass: str = ""
+        self.name: str =name
+        self.xp: int = 0
+        self.level: int = 1
+        self.equipped_abilities: list[Ability] = []
+        self.other_abilities: list[Ability] = []
 
         # The first number is the actual stat value. The second is the stat's scaling with level.
-        self.currenthp = 0
-        self.maxhp = [0,0]
-        self.atk = [0,0]
+        self.currenthp: float = 0
+        self.maxhp: list[int,int] = [0,0]
+        self.atk: list[int,int] = [0,0]
 
         # a decimal value from 0 to 1
-        self.defense = [0,0]
+        self.defense: list[float,int] = [0,0]
 
         # Currency for getting abilities. 
-        self.coins = 0
+        self.coins: int = 0
 
     # copy values from database to create a new Entity.
     def init_from_dict(self,pclass,psubclass,xp,level,equipped_abilities,other_abilities,currenthp,maxhp,atk,defense,coins):
@@ -98,17 +144,18 @@ class Entity:
         self.currenthp = self.maxhp[0]
 
     def get_level_req(self):
+        # not sure how python does pemdas
         return 10 + 2 * ((self.level - 1) ** 2)
 
     # Use an ability. 
-    def use_ability(self,ability_name):
-        pass
+    def use_ability(self,ability: Ability):
+        ability.use_ability()
 
     # Level up, increasing stats accordingly and returning a level up message.
     # XP function: levelxp = 10 + 2 * (level - 1) ^ 2
     def level_up(self,xp_gained):
-        # not sure how closely python follows pemdas
-        xp_req = 10 + 2 * ((self.level - 1) ** 2)
+        
+        xp_req = self.get_level_req()
         level_up = False
 
         # this logic is kinda bad, gotta find a better solution
@@ -132,7 +179,7 @@ class Entity:
             self.defense[0] += self.defense[1]
 
             # change xp requirement to match new level
-            xp_req = 10 + 2 * ((self.level - 1) ** 2)
+            xp_req = self.get_level_req()
         
         if level_up:
             return f'''Gained {xp_gained} XP!
@@ -166,11 +213,9 @@ Attack: {oldatk} >> {self.atk[0]} {f"\nDefense: {round(olddef * 100,2)}% >> {rou
         self.xp += running_total_xp
         return self.level_up(running_total_xp)
   
-
-    # deprecated
-    def test_xp(self):
-        self.xp += 1000
-        return self.level_up(1000)
+    # One-line heal function to prevent overhealing issues.
+    def heal(self,value):
+        self.currenthp = self.maxhp if self.currenthp + value >= self.maxhp else self.currenthp + value
 
 # A subclass used for all enemies.
 class Enemy(Entity):
@@ -188,7 +233,7 @@ class Enemy(Entity):
     # initialization stuff for grunt and other non-specialized enemies goes here.
     def init_no_class_enemy(self):
         self.pclass = "None"
-        
+
 
 # attack another Entity.
 def attack(entity: Entity, target: Entity):
@@ -203,11 +248,7 @@ def attack(entity: Entity, target: Entity):
 # 
 # If an ability needs other parameters, it will be added to the dict and checked for in the switch statement
 # that does ability resolution.
-def use_ability(entity: Entity, ability_name: str):
-    
-    pass
 
 
-# decoder function used for getting Entities from the database.
-def entity_decoder(entity_dict):
-    return namedtuple('X', entity_dict.keys())(*entity_dict.values())
+
+
