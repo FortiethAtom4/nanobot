@@ -69,17 +69,16 @@ async def on_message(message: discord.Message):
 
 # /start
 # instantiates a new PlayerClass, assigns it to the player, and persists it to the database.
-# async def add_new_user(ctx,player_class: str):
-#     # attempt to insert a new user
-#     newplayer = db.insert_new_user(ctx.user.name,player_class)
-#     if newplayer == -1:
-#         await ctx.respond("You already have a character!")
-#         return
-#     await ctx.respond(f'''Successfully created a new character for {ctx.user.name}!
-# Class: {newplayer.pclass}
-# HP: {newplayer.maxhp[0]}
-# ATK: {newplayer.atk[0]}
-# Defense: {newplayer.defense[0] * 100}%''')
+@bot.slash_command(
+    name="start",
+    guild_ids=[825590571606999040],
+    description="Creates your new character with a starting class."   
+)
+async def create_character(ctx: discord.ApplicationContext):
+    select = menus.characterSelect()
+    view = discord.ui.View(select)
+    await ctx.respond("Choose your class.",view=view)
+
 
 # /stats
 # check your character stats.
@@ -138,16 +137,15 @@ async def gain_levels(ctx: discord.ApplicationContext, value: int):
     await ctx.respond(player_entity.gain_levels(value))
     print(db.update_stats(player_entity))
    
-
 @bot.slash_command(
-    name="start",
+    name="shutdown",
     guild_ids=[825590571606999040],
-    description="Creates your new character with a starting class."   
+    description="Shuts the bot down. Owner-only."
 )
-async def create_character(ctx: discord.ApplicationContext):
-    select = menus.characterSelect()
-    view = discord.ui.View(select)
-    await ctx.respond("Choose your class.",view=view)
+@commands.is_owner()
+async def shutdown(ctx: discord.ApplicationContext):
+    await ctx.respond("Shutting down...")
+    exit()
 
 
 # run the bot
