@@ -1,46 +1,3 @@
-
-
-
-
-# Object which stores an ability's information and usage logic.
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-class Ability():
-    def __init__(self, name: str, description: str, value: int = 0, uses: int = 0, properties: dict = {}):
-        self.name = name
-        self.description = description
-        self.value = value
-        self.uses = uses
-
-        # this dict will be used to store data for abilities with unique parameters.
-        self.properties = properties
-
-    # Adds a property to an ability during runtime. Not sure how useful this will be, but could add some fun mechanics.
-    def set_property(self, pname: str, pvalue):
-        self.properties[pname] = pvalue
-
-#   Ability logic is done on a case-by-case basis, because creating a whole pseudolanguage again sounds like a royal pain.
-    def use_ability(self,entity: Entity): # type: ignore
-        match self.name:
-
-#           Name: Second Wind
-#           Targets: Self
-#           Parameter(s): value
-#           Description: Heals the caster. 
-            case "Second Wind":
-                entity.heal(self.value)
-
-#           Name: Firebolt
-#           Targets: 1 enemy
-#           Parameter(s): value
-#           Description: Deals damage to an enemy. Blocking negates the damage.
-            case "Firebolt":
-                pass
-
-            case _:
-                print("Error: unrecognized ability detected.")
-
-
-
 # User stats:
 # ID
 # name
@@ -62,12 +19,12 @@ class Ability():
 # Instantiates some default values; subclasses will overwrite them.
 # Will include stats and methods all entities will share.
 
-from collections import namedtuple
-
 # local imports
 import globals
+from effectutils import Ability, Effect
 
 class Entity:
+
     def __init__(self,name):
         self.pclass: str = ""
         self.psubclass: str = ""
@@ -76,6 +33,9 @@ class Entity:
         self.level: int = 1
         self.equipped_abilities: list[Ability] = []
         self.other_abilities: list[Ability] = []
+
+        # list of hanging effects on the entity that get checked every turn
+        self.effects: list[Effect] = []
 
         # The first number is the actual stat value. The second is the stat's scaling with level.
         self.currenthp: float = 0
@@ -145,11 +105,31 @@ class Entity:
 
     def get_level_req(self):
         # not sure how python does pemdas
+        print(str(10 + 2 * ((self.level - 1) ** 2)))
         return 10 + 2 * ((self.level - 1) ** 2)
 
     # Use an ability. 
-    def use_ability(self,ability: Ability):
-        ability.use_ability()
+    def use_ability(self, ability: Ability):
+        match ability.name:
+    #           Name: Second Wind
+    #           Targets: Self
+    #           Parameter(s): value
+    #           Description: Heals the caster. 
+                case "Second Wind":
+                    if ability.uses > 0:
+                        self.heal(ability.value)
+                        ability.uses -= 1
+
+    #           Name: Firebolt
+    #           Targets: 1 enemy
+    #           Parameter(s): value
+    #           Description: Deals damage to an enemy. Blocking negates the damage.
+                case "Firebolt":
+                    pass # TODO: need to continue with Discord functionality to do targeting logic
+            
+
+                case _:
+                    print("Error: unrecognized ability detected.")
 
     # Level up, increasing stats accordingly and returning a level up message.
     # XP function: levelxp = 10 + 2 * (level - 1) ^ 2
@@ -198,14 +178,14 @@ Attack: {oldatk} >> {self.atk[0]} {f"\nDefense: {round(olddef * 100,2)}% >> {rou
     # Grants exactly enough experience to level the entity up [value] times.
     def gain_levels(self,value):
         cur_level = self.level + 1
-        cur_xp_req = 10 + 2 * ((self.level - 1) ** 2)
+        cur_xp_req = self.get_level_req()
 
         # start with exactly enough to level up once
         running_total_xp = cur_xp_req - self.xp
 
         # if more than one levelup, continue adding to total
         for i in range(0,value - 1):
-            cur_xp_req = 10 + 2 * ((cur_level - 1) ** 2)
+            cur_xp_req = self.get_level_req()
             running_total_xp += cur_xp_req
             cur_level += 1
 
@@ -216,6 +196,14 @@ Attack: {oldatk} >> {self.atk[0]} {f"\nDefense: {round(olddef * 100,2)}% >> {rou
     # One-line heal function to prevent overhealing issues.
     def heal(self,value):
         self.currenthp = self.maxhp if self.currenthp + value >= self.maxhp else self.currenthp + value
+
+#   method to add effects to an entity.
+    def gain_effect(self, effect: Effect):
+        self.effects.insert(effect)
+
+#   clear all effects that have been used up. 
+    def clear_finished_effects(self):
+        self.effects = [effect for effect in self.effects if effect.uses != 0]
 
 # A subclass used for all enemies.
 class Enemy(Entity):
@@ -234,6 +222,7 @@ class Enemy(Entity):
     def init_no_class_enemy(self):
         self.pclass = "None"
 
+    
 
 # attack another Entity.
 def attack(entity: Entity, target: Entity):
