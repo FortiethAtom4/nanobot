@@ -85,7 +85,8 @@ Database status: {"Not connected" if resp == -1 else "Connected"}```''')
 )
 @commands.is_owner()
 async def shutdown(ctx: discord.ApplicationContext):
-    await ctx.respond("Shutting down...")
+    await ctx.respond("Persisting updates and shutting down...")
+    db.persist_updates()
     exit()
 
 # updates the database automatically at regular intervals
