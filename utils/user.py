@@ -5,15 +5,15 @@ class User:
 
     def __init__(self, name):
         self.name: str = name
-        self.level = 0
+        self.level: int = 0
         self.xp_current: int = 0
         self.xp_total: int = 0
+        self.total_messages: int = 0
         self.cooldown: datetime.datetime = datetime.datetime(2001,1,16)
 
     def get_level_req(self):
         # not sure how python does pemdas
         # 5 * (lvl ^ 2) + (50 * lvl) + 100 - xp <- mee6 function to determine how much XP is required to level up
-        # print(5* (self.level ** 2) + (50 * self.level) + 100)
         return 5* (self.level ** 2) + (50 * self.level) + 100
     
     def level_up(self):
@@ -27,6 +27,7 @@ class User:
         cooldown: datetime.timedelta = datetime.datetime.now() + datetime.timedelta(seconds=0)
         levelup = False
         if cooldown > cooldown_time:
+            self.total_messages += 1
             if value == -1:
                 value = random.randint(15,25) 
             self.cooldown = datetime.datetime.now()
@@ -37,5 +38,4 @@ class User:
             while self.xp_current >= self.get_level_req():
                 levelup = True
                 self.level_up()
-
         return levelup
