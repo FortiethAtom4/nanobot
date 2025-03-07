@@ -46,7 +46,7 @@ async def on_message(message: discord.Message):
             await message.channel.send("\U0001F5FF")
 
         if levelup:
-            await message.channel.send(f"Congratulations, <@{message.author.id}>! You are now level {user.level}!")
+            await message.channel.send(f"Congratulations, <@{message.author.id}>! You are now **{user.level} Inches!**")
 
 
 
