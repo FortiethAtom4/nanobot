@@ -8,6 +8,7 @@ class Pagination(discord.ui.View):
         self.get_page = get_page
         self.total_pages: Optional[int] = None
         self.index = 1
+        self.original_message = 0
         super().__init__(timeout=100)
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
@@ -22,6 +23,7 @@ class Pagination(discord.ui.View):
             return False
 
     async def navigate(self):
+        self.original_message = await self.interaction.original_response()
         emb, self.total_pages = await self.get_page(self.index)
         if self.total_pages == 1:
             await self.interaction.response.send_message(embed=emb)
@@ -32,7 +34,7 @@ class Pagination(discord.ui.View):
     async def edit_page(self, interaction: discord.ApplicationContext, button: discord.Button):
         emb, self.total_pages = await self.get_page(self.index)
         self.update_buttons()
-        await interaction.response.edit_message(embed=emb, view=self)
+        await self.original_message.edit(embed=emb, view=self)
 
     def update_buttons(self):
         if self.index > self.total_pages // 2:
