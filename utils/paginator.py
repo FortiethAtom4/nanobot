@@ -45,12 +45,12 @@ class Pagination(discord.ui.View):
     @discord.ui.button(emoji="◀️", style=discord.ButtonStyle.blurple)
     async def previous(self, interaction: discord.ApplicationContext, button: discord.Button):
         self.index -= 1
-        await self.edit_page(interaction)
+        await self.edit_page(interaction, button)
 
     @discord.ui.button(emoji="▶️", style=discord.ButtonStyle.blurple)
     async def next(self, interaction: discord.Interaction, button: discord.Button):
         self.index += 1
-        await self.edit_page(interaction)
+        await self.edit_page(interaction, button)
 
     @discord.ui.button(emoji="⏭️", style=discord.ButtonStyle.blurple)
     async def end(self, interaction: discord.Interaction, button: discord.Button):
@@ -58,7 +58,7 @@ class Pagination(discord.ui.View):
             self.index = self.total_pages
         else:
             self.index = 1
-        await self.edit_page(interaction)
+        await self.edit_page(interaction, button)
 
     async def on_timeout(self):
         # remove buttons on timeout
