@@ -19,7 +19,7 @@ class Pagination(discord.ui.View):
                 description=f"Only the author of the command can perform this action.",
                 color=16711680
             )
-            await interaction.response.send_message(embed=emb, ephemeral=True)
+            self.original_message = await interaction.response.send_message(embed=emb, ephemeral=True)
             return False
 
     async def navigate(self):
