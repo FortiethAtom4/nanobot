@@ -1,6 +1,9 @@
 import discord, config, logging
 from discord.ext import commands
 
+import locale
+locale.setlocale(locale.LC_ALL, '')
+
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename='nanobot.log', encoding='utf-8', level=logging.INFO, format=config.log_formatter)
 
@@ -18,9 +21,9 @@ class LevelCommands(commands.Cog):
         user = config.users[rank]
         await ctx.respond(f'''```You are rank {rank + 1} out of {len(config.users)} users.
 Your current level: {user.level}
-Total XP: {user.xp_total}
-Total messages: {user.total_messages}
-Progress to next level: {user.xp_current}/{user.get_level_req()} ({round((user.xp_current)/user.get_level_req()*100,2)}%)```''')
+Total XP: {user.xp_total:,}
+Total messages: {user.total_messages:,}
+Progress to next level: {user.xp_current:,}/{user.get_level_req():,} ({round((user.xp_current)/user.get_level_req()*100,2)}%)```''')
 
 
 def setup(bot: discord.Bot):
