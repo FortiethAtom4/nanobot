@@ -33,7 +33,7 @@ class LevelPaginatorCog(commands.Cog):
         description="Displays the server XP leaderboard."
     )
     async def levels(self, ctx: discord.ApplicationContext):
-        paginator = pages.Paginator(pages=self.get_pages(), disable_on_timeout=True, timeout=90)
+        paginator = pages.Paginator(pages=self.get_pages(), disable_on_timeout=True, timeout=24*60*60, author_check=False)
         await paginator.respond(ctx.interaction, ephemeral=False)
 
 def setup(bot):
