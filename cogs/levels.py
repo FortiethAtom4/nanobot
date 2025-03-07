@@ -1,8 +1,10 @@
-import discord
+import discord, logging
 from discord.ext import commands, pages
 
 import config
 
+logger = logging.getLogger(__name__)
+logging.basicConfig(filename='nanobot.log', encoding='utf-8', level=logging.INFO, format=config.log_formatter)
 
 class LevelPaginatorCog(commands.Cog):
     def __init__(self, bot):
