@@ -1,7 +1,7 @@
 import datetime, random
 
 class User:
-    xp_cooldown: datetime.timedelta = datetime.timedelta(seconds=5) #seconds to wait until next xp gain
+    xp_cooldown: datetime.timedelta = datetime.timedelta(seconds=60) #seconds to wait until next xp gain
 
     def __init__(self, name):
         self.name: str = name
