@@ -1,6 +1,6 @@
 .env
 venv/
-nanobot.log
+bot.log
 __pycache__/
 old/
 data.json
