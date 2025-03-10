@@ -19,7 +19,6 @@ class User:
     def level_up(self):
         self.xp_current = self.xp_current - self.get_level_req()
         self.level += 1
-        print(f"{self.name} is now level {self.level}")
     
     # Grants experience to the user using Mee6's method. Levels them up as needed.
     def gain_xp(self, value: int = -1) -> bool:
@@ -33,7 +32,6 @@ class User:
             self.cooldown = datetime.datetime.now()
             self.xp_current += value
             self.xp_total += value
-            print(f"{self.name} gained {value} xp.")
            
             while self.xp_current >= self.get_level_req():
                 levelup = True

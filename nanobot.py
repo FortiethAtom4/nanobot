@@ -12,7 +12,8 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(filename='bot.log', encoding='utf-8', level=logging.INFO, format=config.log_formatter)
 
 load_dotenv()
-intents = discord.Intents.all() #TODO: definitely doesn't need everything. Reduce later.
+intents = discord.Intents.default()
+intents.message_content = True
 bot = commands.Bot(intents=intents)
 for cog in config.cogs:
     bot.load_extension(f"cogs.{cog}")
