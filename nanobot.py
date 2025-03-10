@@ -96,6 +96,13 @@ async def force_update(ctx: discord.ApplicationContext):
         return
     await msg.edit(content="Updated successfully.")
     logger.info("DB force-updated by owner")
+
+@force_update.error
+@checkup.error
+async def update_error(ctx, error):
+    if isinstance(error, commands.errors.NotOwner):
+        await ctx.respond("You do not have permission to use this command.",ephemeral=True)
+        logger.info(f"User {ctx.user.name} blocked from using an owner-only command")
     
     
 
