@@ -7,7 +7,6 @@ from utils.user import User
 ########## ADD YOUR COG FILE NAME TO THIS LIST ##########
 cogs: list[str] = [
     "levels",
-    "rank",
     "admin"
 ]
 #########################################################
