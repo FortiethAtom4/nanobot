@@ -1,4 +1,4 @@
-import datetime, dotenv, os, logging
+import dotenv, os
 
 #local imports
 from utils.timer import Timer
@@ -7,7 +7,8 @@ from utils.user import User
 ########## ADD YOUR COG FILE NAME TO THIS LIST ##########
 cogs: list[str] = [
     "levels",
-    "rank"
+    "rank",
+    "admin"
 ]
 #########################################################
 
