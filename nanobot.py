@@ -9,6 +9,9 @@ from asyncio import sleep
 import utils.db as db, config
 from utils.user import User
 
+logger = logging.getLogger(__name__)
+logging.basicConfig(filename='bot.log', encoding='utf-8', level=logging.INFO, format=config.log_formatter)
+
 load_dotenv()
 intents = discord.Intents.all() #TODO: definitely doesn't need everything. Reduce later.
 bot = commands.Bot(intents=intents)
@@ -29,7 +32,7 @@ for cog in config.cogs:
 async def add(ctx,first: int, second: int):
     await ctx.respond(f"the sum of {first} and {second} is {first + second}.")
 
-
+# Bot's main event loop. Gives xp to users who send messages.
 @bot.event
 async def on_message(message: discord.Message):
 
@@ -79,27 +82,33 @@ Database status: {"Not connected" if resp == -1 else "Connected"}```''')
 
 
 @bot.slash_command(
-    name="shutdown",
+    name="forceupdate",
     guild_ids=config.GUILD_IDS,
-    description="Shuts the bot down. Owner-only."
+    description="Forces the bot to sync its data with the database. Owner-only."
 )
 @commands.is_owner()
-async def shutdown(ctx: discord.ApplicationContext):
-    await ctx.respond("Persisting updates and shutting down...")
-    db.persist_updates()
-    exit()
+async def force_update(ctx: discord.ApplicationContext):
+    msg = await ctx.respond("Updating database...")
+    updates_successful = db.persist_updates()
+    if not updates_successful:
+        await msg.edit(content="Update failure, please check DB connection")
+        logger.warning("/forcepersist update failure")
+        return
+    await msg.edit(content="Updated successfully.")
+    logger.info("DB force-updated by owner")
+    
+    
 
 # updates the database automatically at regular intervals
-async def do_update():
+async def auto_update():
     config.update_timer.start(datetime.timedelta(minutes=config.update_interval))
     while True:
         if config.update_timer.increment():
-            print(f"-> {datetime.datetime.today()} Periodic database update started...")
             db.persist_updates()
-            print(f"-+ {datetime.datetime.today()} Update completed.")
+            logger.info("DB auto-update completed")
             config.update_timer.start(datetime.timedelta(minutes=config.update_interval))
         await sleep(1)
 
-bot.loop.create_task(do_update())
+bot.loop.create_task(auto_update())
 # run the bot
 bot.run(config.TOKEN)

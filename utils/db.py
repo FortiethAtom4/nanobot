@@ -31,7 +31,7 @@ def get_users() -> None:
         ret_list: list[User] = []
 
         for user in all_users:
-            # convert dicts to Player objects
+            # convert dicts to User objects
             temp = object.__new__(User)
             temp.__dict__ = user
             ret_list.append(temp)
@@ -39,7 +39,6 @@ def get_users() -> None:
         config.user_names = [user.name for user in ret_list]
         
         config.users = ret_list
-    
 
         # add new doc to collection with new user
 
@@ -63,5 +62,8 @@ def persist_updates():
             # update all data
             users.insert_many(users_to_persist)
 
+            return True
+
     except Exception as e:
         print(e)
+        return False

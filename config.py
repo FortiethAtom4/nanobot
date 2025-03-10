@@ -9,13 +9,13 @@ cogs: list[str] = [
     "levels",
     "rank"
 ]
-#################################################
+#########################################################
 
 #for keeping track of update timings
 update_timer = Timer()
 update_interval: int = 10 #time in minutes between updates
 
-#list of users, pulled from DB at bot start
+#list of users, pulled from DB at bot start, sorted by total XP descending
 users: list[User] = []
 user_names: list[str] = []
 

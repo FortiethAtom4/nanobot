@@ -6,7 +6,7 @@ import config
 locale.setlocale(locale.LC_ALL, '')
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename='nanobot.log', encoding='utf-8', level=logging.INFO, format=config.log_formatter)
+logging.basicConfig(filename='bot.log', encoding='utf-8', level=logging.INFO, format=config.log_formatter)
 
 class LevelPaginatorCog(commands.Cog):
     def __init__(self, bot):
@@ -24,7 +24,7 @@ class LevelPaginatorCog(commands.Cog):
             new_range = len(config.users) - counter if len(config.users) - counter < self.num_per_page else self.num_per_page
             for j in range(new_range):
                 user = config.users[counter]
-                page_string += f'''{counter + 1}. **{user.name}**  XP: {user.xp_total:,}  Level: {user.level}\n'''
+                page_string += f'''{counter + 1}. **{user.name}**  XP: {user.xp_total:n}  Level: {user.level}\n'''
                 counter += 1
             self.pages.append(discord.Embed(title="Leaderboard",description=page_string))
         return self.pages
