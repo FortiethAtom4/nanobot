@@ -17,7 +17,7 @@ for cog in config.cogs:
     bot.load_extension(f"cogs.{cog}")
 
 # updates the leaderboard regularly
-@tasks.loop(seconds=5)
+@tasks.loop(seconds=10)
 async def sort_helper():
     config.sort_users_by_rank()
 
