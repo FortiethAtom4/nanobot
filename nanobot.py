@@ -1,7 +1,7 @@
 # bot.py
 # Defines available commands and runs the bot.
 import discord, logging, datetime
-from discord.ext import commands
+from discord.ext import commands, tasks
 from asyncio import sleep
 
 #local imports
@@ -16,6 +16,17 @@ bot = commands.Bot(intents=intents)
 for cog in config.cogs:
     bot.load_extension(f"cogs.{cog}")
 
+# updates the leaderboard regularly
+@tasks.loop(seconds=5)
+async def sort_helper():
+    config.sort_users_by_rank()
+
+# updates the database automatically at regular intervals
+@tasks.loop(minutes=config.update_interval)
+async def auto_update():
+    db.persist_updates()
+    logger.info("DB auto-update completed")
+
 # Print statement when the bot successfully comes online.
 @bot.event
 async def on_ready():
@@ -24,6 +35,9 @@ async def on_ready():
 Current latency: {round(bot.latency*1000,3)}ms''')
     db.get_users()
     print(f"-> {"User data loaded." if len(config.users) > 0 else "Warning: no user data found."}")
+    sort_helper.start()
+    auto_update.start()
+    print("-> Background tasks started.")
 
 
 # Bot's main event loop. Gives xp to users who send messages.
@@ -36,7 +50,6 @@ async def on_message(message: discord.Message):
         
         user = next((user for user in config.users if user.name == message.author.name))
         levelup = user.gain_xp()
-        config.sort_users_by_rank()
 
         # Nano gets a bit nervous if you mention the word "key."
         if "key" in message.content.lower():
@@ -45,16 +58,5 @@ async def on_message(message: discord.Message):
         if levelup:
             await message.channel.send(f"Congratulations, <@{message.author.id}>! You are now **{user.level} Inches!**")
 
-# updates the database automatically at regular intervals
-async def auto_update():
-    config.update_timer.start(datetime.timedelta(minutes=config.update_interval))
-    while True:
-        if config.update_timer.increment():
-            db.persist_updates()
-            logger.info("DB auto-update completed")
-            config.update_timer.start(datetime.timedelta(minutes=config.update_interval))
-        await sleep(1)
-
-bot.loop.create_task(auto_update())
 # run the bot
 bot.run(config.TOKEN)
