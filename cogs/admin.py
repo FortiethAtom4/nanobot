@@ -1,4 +1,4 @@
-import discord, logging
+import discord, logging, datetime
 from discord.ext import commands
 
 import config
@@ -38,10 +38,31 @@ class AdminCog(commands.Cog):
     )
     @commands.is_owner()
     async def checkup(self, ctx): 
+        checkup = await ctx.respond(f'''```Hello, {ctx.user.name}! Thanks for checking on me.
+Loading checkup results...```''')
+        duration: datetime.timedelta = (datetime.datetime.now() - config.start_time)
+        duration = duration - datetime.timedelta(microseconds=duration.microseconds) #is this really how I have to do this
+
+        problems: bool = False
         resp = db.test_connection()
-        await ctx.respond(f'''```Hello, {ctx.user.name}! Thanks for checking on me.
-    Current latency: {round(self.bot.latency*1000,3)}ms
-    Database status: {"Not connected" if resp == -1 else "Connected"}```''')
+        db_connected = ""
+        if not resp:
+            problems = True
+            db_connected = "!- The database is disconnected. Be sure to check on that ASAP."
+        
+        latency = round(self.bot.latency*1000,3)
+        high_ping = ""
+        if latency > 150:
+            problems = True
+            high_ping = "!- Ping appears to be high. Users may notice a bit of a delay."
+
+        status_string = "-> No problems detected. Everything seems to be in order." if not problems else f"{high_ping}\n{db_connected}"
+        
+        await checkup.edit(content=f'''```Hello, {ctx.user.name}! Thanks for checking on me. \n
+{status_string}\n
+- Runtime: {duration}
+- Current latency: {latency}ms
+- Database status: {"Not connected" if not resp else "Connected"}```''')
         
     @force_update.error
     @checkup.error
@@ -49,6 +70,8 @@ class AdminCog(commands.Cog):
         if isinstance(error, commands.errors.NotOwner):
             await ctx.respond("You do not have permission to use this command.",ephemeral=True)
             logger.info(f"User {ctx.user.name} blocked from using an owner-only command")
+        else:
+            await ctx.respond(f"An error occurred when attempting to perform this command: {error}",ephemeral=True)
 
 def setup(bot):
     bot.add_cog(AdminCog(bot))

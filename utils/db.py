@@ -6,12 +6,13 @@ import config
 from utils.user import User
 
 # tests connection to database.
-def test_connection() -> pymongo.MongoClient | int:
+def test_connection() -> bool:
     try:
         client = pymongo.MongoClient(config.db_URL)
-        return client
+        client.server_info()
+        return True
     except:
-        return -1
+        return False
 
 def add_new_user(username: str) -> None:
     new_user = User(username)

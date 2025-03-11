@@ -11,6 +11,9 @@ cogs: list[str] = [
 ]
 #########################################################
 
+# set when bot is started up
+start_time = 0
+
 #for keeping track of update timings
 update_timer = Timer()
 update_interval: int = 10 #time in minutes between updates

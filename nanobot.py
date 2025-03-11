@@ -16,6 +16,16 @@ bot = commands.Bot(intents=intents)
 for cog in config.cogs:
     bot.load_extension(f"cogs.{cog}")
 
+# Print statement when the bot successfully comes online.
+@bot.event
+async def on_ready():
+    config.start_time = datetime.datetime.now()
+    print(f'''Successfully logged in as {bot.user}.
+Current latency: {round(bot.latency*1000,3)}ms''')
+    db.get_users()
+    print(f"-> {"User data loaded." if len(config.users) > 0 else "Warning: no user data found."}")
+
+
 # Bot's main event loop. Gives xp to users who send messages.
 @bot.event
 async def on_message(message: discord.Message):
@@ -34,14 +44,6 @@ async def on_message(message: discord.Message):
 
         if levelup:
             await message.channel.send(f"Congratulations, <@{message.author.id}>! You are now **{user.level} Inches!**")
-
-# Print statement when the bot successfully comes online.
-@bot.event
-async def on_ready():
-    print(f'''Successfully logged in as {bot.user}.
-Current latency: {round(bot.latency*1000,3)}ms''')
-    db.get_users()
-    print(f"-> {"User data loaded." if len(config.users) > 0 else "Warning: no user data found."}")
 
 # updates the database automatically at regular intervals
 async def auto_update():
