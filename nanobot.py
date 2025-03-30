@@ -34,7 +34,7 @@ async def on_ready():
     print(f'''Successfully logged in as {bot.user}.
 Current latency: {round(bot.latency*1000,3)}ms''')
     db.get_users()
-    print(f"-> {"User data loaded." if len(config.users) > 0 else "Warning: no user data found."}")
+    print(f"-> {'User data loaded.' if len(config.users) > 0 else 'Warning: no user data found.'}")
     sort_helper.start()
     auto_update.start()
     print("-> Background tasks started.")

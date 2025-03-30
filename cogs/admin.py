@@ -10,7 +10,7 @@ logging.basicConfig(filename='bot.log', encoding='utf-8', level=logging.INFO, fo
 # A cog for owner-only commands, mainly to check bot performance and do manual updates.
 class AdminCog(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: discord.Bot = bot
     
     @discord.slash_command(
         name="forceupdate",
@@ -62,7 +62,7 @@ Loading checkup results...```''')
 {status_string}\n
 - Runtime: {duration}
 - Current latency: {latency}ms
-- Database status: {"Not connected" if not resp else "Connected"}```''')
+- Database status: {'Not connected' if not resp else 'Connected'}```''')
         
     @force_update.error
     @checkup.error
