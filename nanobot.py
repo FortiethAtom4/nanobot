@@ -52,7 +52,7 @@ async def on_message(message: discord.Message):
         levelup = user.gain_xp()
 
         # Nano gets a bit nervous if you mention the word "key."
-        for i in range(len(re.findall("key",message.content.lower()))):
+        for i in range(message.content.lower().count("key")):
             await message.channel.send("\U0001F5FF")
 
         if levelup:
