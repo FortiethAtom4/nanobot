@@ -55,6 +55,9 @@ async def on_message(message: discord.Message):
         if "key" in message.content.lower():
             await message.channel.send("\U0001F5FF")
 
+        if "nano" is message.content.lower():
+            await message.channel.send("<:NanoSmile:827832293442846720>")
+
         if levelup:
             await message.channel.send(f"Congratulations, <@{message.author.id}>! You are now **{user.level} Inches!**")
 
