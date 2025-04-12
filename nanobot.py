@@ -1,6 +1,6 @@
 # bot.py
 # Defines available commands and runs the bot.
-import discord, logging, datetime
+import discord, logging, datetime, re
 from discord.ext import commands, tasks
 from asyncio import sleep
 
@@ -52,9 +52,8 @@ async def on_message(message: discord.Message):
         levelup = user.gain_xp()
 
         # Nano gets a bit nervous if you mention the word "key."
-        for string in message.content.lower().split(" "):
-            if string == "key":
-                await message.channel.send("\U0001F5FF")
+        for i in range(len(re.findall("key",message.content.lower()))):
+            await message.channel.send("\U0001F5FF")
 
         if levelup:
             await message.channel.send(f"Congratulations, <@{message.author.id}>! You are now **{user.level} Inches!**")
