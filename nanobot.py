@@ -2,7 +2,6 @@
 # Defines available commands and runs the bot.
 import discord, logging, datetime, re
 from discord.ext import commands, tasks
-from asyncio import sleep
 
 #local imports
 import utils.db as db, config
@@ -53,7 +52,27 @@ async def on_message(message: discord.Message):
 
         # Nano gets a bit nervous if you mention the word "key."
         if "key" in message.content.lower():
-            await message.channel.send("\U0001F5FF")
+            
+            key_msg = "\U0001F5FF"
+            await message.channel.send(key_msg)
+
+            # a very funny bit of logic that prints a moyai for EVERY instance of the word key. Too dangerous to be left running, unfortunately.
+            # msg_batch_max = 150
+
+            # key_msg = ""
+            # total = len(re.findall("key",message.content.lower()))
+            # reps: float = total/msg_batch_max
+            # print(reps)
+            # # divide "key" msgs into groups of msg_batch_max and send those
+            # for i in range(int(reps)):
+            #     key_msg = "\U0001F5FF"*msg_batch_max
+            #     await message.channel.send(key_msg)
+
+            # #send any extra "key" resps for remainder
+            # reps = (reps- int(reps))*msg_batch_max
+            # key_msg = "\U0001F5FF"*int(reps)
+            # await message.channel.send(key_msg)
+
 
         if levelup:
             await message.channel.send(f"Congratulations, <@{message.author.id}>! You are now **{user.level} Inches!**")

@@ -1,4 +1,4 @@
-import dotenv, os
+import os, dotenv
 
 #local imports
 from utils.timer import Timer
@@ -30,7 +30,7 @@ def sort_users_by_rank():
 log_formatter = '%(asctime)s :: %(name)s :: %(levelname)s :: %(message)s'
 
 # private variables from the .env
-dotenv.load_dotenv(dotenv.find_dotenv(usecwd=True))
+dotenv.load_dotenv(dotenv.find_dotenv(".env"))
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD_IDS: list[int] = [int(x) for x in (os.getenv('GUILD_IDS')).split(",")] #allows multiple guild IDs separated by comma
 USER = os.getenv("MONGODB_USER")
