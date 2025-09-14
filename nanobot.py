@@ -51,28 +51,17 @@ async def on_message(message: discord.Message):
         levelup = user.gain_xp()
 
         # Nano gets a bit nervous if you mention the word "key."
-        if "key" in message.content.lower():
-            
+        if "key" in message.content.lower():    
             key_msg = "\U0001F5FF"
             await message.channel.send(key_msg)
-
-            # a very funny bit of logic that prints a moyai for EVERY instance of the word key. Too dangerous to be left running, unfortunately.
-            # msg_batch_max = 150
-
-            # key_msg = ""
-            # total = len(re.findall("key",message.content.lower()))
-            # reps: float = total/msg_batch_max
-            # print(reps)
-            # # divide "key" msgs into groups of msg_batch_max and send those
-            # for i in range(int(reps)):
-            #     key_msg = "\U0001F5FF"*msg_batch_max
-            #     await message.channel.send(key_msg)
-
-            # #send any extra "key" resps for remainder
-            # reps = (reps- int(reps))*msg_batch_max
-            # key_msg = "\U0001F5FF"*int(reps)
-            # await message.channel.send(key_msg)
-
+        has_sent_msg = False
+        for swear in config.swears:    
+            if swear in message.content.lower():
+                if has_sent_msg == False:
+                    await message.channel.send(f"**WARNING**: {message.author.mention} just said a no-no word.")
+                    has_sent_msg = True
+                
+                logger.warning(f"{message.author.name} said the no-no word \'{swear}\'")
 
         if levelup:
             await message.channel.send(f"Congratulations, <@{message.author.id}>! You are now **{user.level} Inches!**")

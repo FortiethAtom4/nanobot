@@ -38,3 +38,7 @@ PASS = os.getenv("MONGODB_PASS")
 DB_NAME = os.getenv("DB_NAME")
 COLLECTION = os.getenv("DB_COLLECTION")
 db_URL = f"mongodb+srv://{USER}:{PASS}@nanobot.lab1zmc.mongodb.net/"
+
+swears = []
+with open('swears.txt') as swearfile:
+    swears = swearfile.read().splitlines()
