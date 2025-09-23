@@ -48,7 +48,7 @@ class LevelPaginatorCog(commands.Cog):
     guild_ids=config.GUILD_IDS,
     description="Gets your rank."
     )
-    async def rank(self, ctx: discord.ApplicationContext, user = None): # user = discord.User
+    async def rank(self, ctx: discord.ApplicationContext, user: discord.Member = None): # user = discord.User
 
         if user == None:
             rank = next((i for i, user in enumerate(config.users) if user.name == ctx.user.name), -1)
