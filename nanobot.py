@@ -1,6 +1,6 @@
 # bot.py
 # Defines available commands and runs the bot.
-import discord, logging, datetime, re
+import discord, logging, datetime, random
 from discord.ext import commands, tasks
 
 #local imports
