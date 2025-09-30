@@ -34,7 +34,7 @@ class AdminCog(commands.Cog):
     @discord.slash_command(
         name="checkup",
         guild_ids=config.GUILD_IDS,
-        description="Gives technical information about the bot. Owner-only."
+        description="OWNER: Gives technical information about the bot."
     )
     @commands.is_owner()
     async def checkup(self, ctx): 
@@ -63,6 +63,19 @@ Loading checkup results...```''')
 - Runtime: {duration}
 - Current latency: {latency}ms
 - Database status: {'Not connected' if not resp else 'Connected'}```''')
+        
+    # /stuff
+    # a funny command which makes Nano say whatever I want.
+    @discord.slash_command(
+    name="stuff",
+    guild_ids=config.GUILD_IDS,
+    description="OWNER: "
+    )
+    @commands.is_owner()
+    async def stuff(self, ctx: discord.ApplicationContext, m: str):
+        await ctx.delete()
+        await ctx.send(m)
+        
         
     @force_update.error
     @checkup.error
