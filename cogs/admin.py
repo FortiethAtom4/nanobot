@@ -64,7 +64,7 @@ Loading checkup results...```''')
 - Current latency: {latency}ms
 - Database status: {'Not connected' if not resp else 'Connected'}```''')
         
-    # /stuff
+# /stuff
     # a funny command which makes Nano say whatever I want.
     @discord.slash_command(
     name="stuff",
