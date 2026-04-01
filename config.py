@@ -3,6 +3,7 @@ import os, dotenv
 #local imports
 from utils.timer import Timer
 from utils.user import User
+from utils.server import Server
 
 ########## ADD YOUR COG FILE NAME TO THIS LIST ##########
 cogs: list[str] = [
@@ -19,6 +20,7 @@ update_timer = Timer()
 update_interval: int = 10 #time in minutes between updates
 
 #list of users, pulled from DB at bot start, sorted by total XP descending
+servers: list[Server] = []
 users: list[User] = []
 user_names: list[str] = []
 
@@ -42,3 +44,8 @@ db_URL = f"mongodb+srv://{USER}:{PASS}@nanobot.lab1zmc.mongodb.net/"
 swears = []
 with open('swears.txt') as swearfile:
     swears = swearfile.read().splitlines()
+
+HF_TOKEN = os.getenv("HF_TOKEN")
+
+# chance of bot replying to a message
+maxbot_chance = 5

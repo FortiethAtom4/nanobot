@@ -1,10 +1,13 @@
 # bot.py
 # Defines available commands and runs the bot.
-import discord, logging, datetime, random
+import discord, logging, datetime
 from discord.ext import commands, tasks
 
 #local imports
 import utils.db as db, config
+
+from utils import maxbot
+import random
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename='bot.log', encoding='utf-8', level=logging.INFO, format=config.log_formatter)
@@ -43,12 +46,20 @@ Current latency: {round(bot.latency*1000,3)}ms''')
 @bot.event
 async def on_message(message: discord.Message):
 
+    # maxbot bullshit
+    maxbot.add_to_conversation(message.author.display_name,message.content)
+
     if not message.author.bot:
+        chance = random.randrange(1,101)
+        logger.info(f"maxbot chance: {100 - config.maxbot_chance} chance rolled: {chance}")
+        if chance > (100 - config.maxbot_chance):
+            await message.channel.send(maxbot.ai_bullshit(message.content.lower()))
         if message.author.name not in config.user_names:
             db.add_new_user(message.author.name)
         
         user = next((user for user in config.users if user.name == message.author.name))
         levelup = user.gain_xp()
+
 
         # Nano gets a bit nervous if you mention the word "key."
         if "key" in message.content.lower():    

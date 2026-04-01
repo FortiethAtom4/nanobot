@@ -75,7 +75,18 @@ Loading checkup results...```''')
     async def stuff(self, ctx: discord.ApplicationContext, m: str):
         await ctx.delete()
         await ctx.send(m)
-        
+
+
+    
+    @discord.slash_command(
+    name="grok",
+    guild_ids=config.GUILD_IDS,
+    description="OWNER: determine how much of a scourge Nanobot will be in chat."
+    )
+    @commands.is_owner()
+    async def maxbotinator(self, ctx: discord.ApplicationContext, percent:int):
+        config.maxbot_chance = percent
+        await ctx.respond(f"Response chance changed to {percent}%",ephemeral=True)
         
     @force_update.error
     @checkup.error

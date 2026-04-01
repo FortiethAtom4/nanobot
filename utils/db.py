@@ -21,6 +21,9 @@ def add_new_user(username: str) -> None:
     config.sort_users_by_rank()
     print(f"new user {username} added to list.")
 
+def add_new_server(server_id: int) -> None:
+    pass
+
     
 def get_users() -> None:
     try:
