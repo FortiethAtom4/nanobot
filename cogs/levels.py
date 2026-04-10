@@ -6,7 +6,6 @@ import config
 locale.setlocale(locale.LC_ALL, '')
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename='bot.log', encoding='utf-8', level=logging.INFO, format=config.log_formatter)
 
 class LevelPaginatorCog(commands.Cog):
     def __init__(self, bot: discord.Bot):

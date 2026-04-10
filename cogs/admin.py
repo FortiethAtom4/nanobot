@@ -5,7 +5,6 @@ import config
 import utils.db as db
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename='bot.log', encoding='utf-8', level=logging.INFO, format=config.log_formatter)
 
 # A cog for owner-only commands, mainly to check bot performance and do manual updates.
 class AdminCog(commands.Cog):

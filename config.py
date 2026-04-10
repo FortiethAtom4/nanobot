@@ -4,6 +4,7 @@ import os, dotenv
 from utils.timer import Timer
 from utils.user import User
 from utils.server import Server
+import logging, logging.handlers
 
 ########## ADD YOUR COG FILE NAME TO THIS LIST ##########
 cogs: list[str] = [
@@ -28,8 +29,14 @@ def sort_users_by_rank():
     users.sort(key = lambda x: x.xp_total, reverse=True)
 
 
-#config formatter
+#log formatting
 log_formatter = '%(asctime)s :: %(name)s :: %(levelname)s :: %(message)s'
+formatter = logging.Formatter(log_formatter)
+log_handler = logging.handlers.RotatingFileHandler("bot.log",maxBytes=1000000)
+log_handler.setFormatter(formatter)
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+logger.addHandler(log_handler)
 
 # private variables from the .env
 dotenv.load_dotenv(dotenv.find_dotenv(".env"))
