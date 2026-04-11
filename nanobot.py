@@ -2,7 +2,8 @@
 # Defines available commands and runs the bot.
 import discord, logging, datetime
 from discord.ext import commands, tasks
-import logging.handlers
+
+from concurrent.futures import ThreadPoolExecutor
 
 #local imports
 import utils.db as db, config
