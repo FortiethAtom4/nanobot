@@ -7,8 +7,6 @@ from concurrent.futures import ThreadPoolExecutor
 
 #local imports
 import utils.db as db, config
-
-from utils import maxbot
 import random
 
 logger = logging.getLogger(__name__)
@@ -48,13 +46,8 @@ Current latency: {round(bot.latency*1000,3)}ms''')
 async def on_message(message: discord.Message):
 
     # maxbot bullshit
-    maxbot.add_to_conversation(message.author.display_name,message.content)
 
     if not message.author.bot:
-        chance = random.randrange(1,101)
-        logger.info(f"maxbot chance: {100 - config.maxbot_chance} chance rolled: {chance}")
-        if chance > (100 - config.maxbot_chance):
-            await message.channel.send(maxbot.ai_bullshit(message.content.lower()))
         if message.author.name not in config.user_names:
             db.add_new_user(message.author.name)
         
