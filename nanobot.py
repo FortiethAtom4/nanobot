@@ -1,13 +1,15 @@
 # bot.py
 # Defines available commands and runs the bot.
 import discord, logging, datetime
-from discord.ext import commands, tasks
-
+from discord.ext import commands
 from concurrent.futures import ThreadPoolExecutor
+
+update_tasks = ThreadPoolExecutor(1)
 
 #local imports
 import utils.db as db, config
-import random
+
+num_updates: int = 0
 
 logger = logging.getLogger(__name__)
 
@@ -18,15 +20,25 @@ for cog in config.cogs:
     bot.load_extension(f"cogs.{cog}")
 
 # updates the leaderboard regularly
-@tasks.loop(seconds=10)
-async def sort_helper():
-    config.sort_users_by_rank()
+# @tasks.loop(seconds=10)
+# async def sort_helper():
+#     config.sort_users_by_rank()
+
+def auto_update():
+    global num_updates
+    num_updates += 1
+
+    if num_updates >= config.updates_before_persist:
+        config.sort_users_by_rank()
+        ret: int = db.persist_updates()
+        num_updates = 0
+
 
 # updates the database automatically at regular intervals
-@tasks.loop(minutes=config.update_interval)
-async def auto_update():
-    db.persist_updates()
-    logger.info("DB auto-update completed")
+# @tasks.loop(minutes=config.update_interval)
+# async def auto_update():
+#     db.persist_updates()
+#     logger.info("DB auto-update completed")
 
 # Print statement when the bot successfully comes online.
 @bot.event
@@ -36,18 +48,18 @@ async def on_ready():
 Current latency: {round(bot.latency*1000,3)}ms''')
     db.get_users()
     print(f"-> {'User data loaded.' if len(config.users) > 0 else 'Warning: no user data found.'}")
-    sort_helper.start()
-    auto_update.start()
-    print("-> Background tasks started.")
+    # sort_helper.start()
+    # auto_update.start()
+    # print("-> Background tasks started.")
 
 
 # Bot's main event loop. Gives xp to users who send messages.
 @bot.event
 async def on_message(message: discord.Message):
 
-    # maxbot bullshit
-
     if not message.author.bot:
+        update_tasks.submit(auto_update)
+
         if message.author.name not in config.user_names:
             db.add_new_user(message.author.name)
         

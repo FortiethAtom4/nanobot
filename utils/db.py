@@ -1,9 +1,12 @@
 import pymongo
 import pymongo.collection
+import logging
 
 # local imports
 import config
 from utils.user import User
+
+logger = logging.getLogger(__name__)
 
 # tests connection to database.
 def test_connection() -> bool:
@@ -49,15 +52,14 @@ def get_users() -> None:
     except Exception as e:
         print(e)
 
-def persist_updates():
+def persist_updates() -> int:
     try:
         client = pymongo.MongoClient(config.db_URL)
         db = client[config.DB_NAME]
         users = db[config.COLLECTION]
 
-        users.delete_many({})
-
         if len(config.users) > 0:
+            users.delete_many({})
             # prepare list of dicts to persist
             users_to_persist: list[dict] = []
             for user in config.users:
@@ -66,8 +68,16 @@ def persist_updates():
             # update all data
             users.insert_many(users_to_persist)
 
-            return True
+            # OK
+            logger.info("DB auto-update completed")
+            return 0
 
     except Exception as e:
-        print(e)
-        return False
+
+        # something went wrong
+        logger.warning(f"Something went wrong persisting updates to DB: {e}")
+        return 1
+
+    # nothing to do
+    logger.info("No DB update, nothing to do")
+    return 2

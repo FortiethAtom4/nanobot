@@ -1,5 +1,8 @@
-import datetime, random
+import datetime, random, logging
+logger = logging.getLogger(__name__)
 class User:
+    
+
     xp_cooldown: datetime.timedelta = datetime.timedelta(seconds=60) #seconds to wait until next xp gain
 
     def __init__(self, name):
@@ -24,6 +27,7 @@ class User:
         cooldown_time: datetime.timedelta = self.cooldown + User.xp_cooldown
         cooldown: datetime.timedelta = datetime.datetime.now() + datetime.timedelta(seconds=0)
         levelup = False
+        
         if cooldown > cooldown_time:
             self.total_messages += 1
             if value == -1:

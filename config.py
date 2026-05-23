@@ -56,3 +56,6 @@ HF_TOKEN = os.getenv("HF_TOKEN")
 
 # chance of bot replying to a message
 maxbot_chance = 5
+
+# number of messages before an attempted persist to db
+updates_before_persist: int = 25
