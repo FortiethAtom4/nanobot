@@ -46,6 +46,8 @@ USER = os.getenv("MONGODB_USER")
 PASS = os.getenv("MONGODB_PASS")
 DB_NAME = os.getenv("DB_NAME")
 COLLECTION = os.getenv("DB_COLLECTION")
+DB_UPDATE_INTERVAL = int(os.getenv("DB_UPDATE_INTERVAL"))
+
 db_URL = f"mongodb+srv://{USER}:{PASS}@nanobot.lab1zmc.mongodb.net/"
 
 swears = []
@@ -58,4 +60,4 @@ HF_TOKEN = os.getenv("HF_TOKEN")
 maxbot_chance = 5
 
 # number of messages before an attempted persist to db
-updates_before_persist: int = 25
+updates_before_persist: int = DB_UPDATE_INTERVAL
