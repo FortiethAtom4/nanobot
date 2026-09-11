@@ -54,6 +54,8 @@ swears = []
 with open('swears.txt') as swearfile:
     swears = swearfile.read().splitlines()
 
+key_words = ["key", "きー", "キー"]
+
 HF_TOKEN = os.getenv("HF_TOKEN")
 
 # chance of bot replying to a message

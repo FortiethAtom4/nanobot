@@ -68,7 +68,7 @@ async def on_message(message: discord.Message):
 
 
         # Nano gets a bit nervous if you mention the word "key."
-        if "key" in message.content.lower():    
+        if any(x in message.content.lower() for x in config.key_words):    
             key_msg = "\U0001F5FF"
             await message.channel.send(key_msg)
         has_sent_msg = False
