@@ -12,7 +12,7 @@ class Base(DeclarativeBase):
 class User(Base):
     __tablename__ = "users"
 
-    xp_cooldown: datetime.timedelta = datetime.timedelta(seconds=1) #seconds to wait until next xp gain
+    xp_cooldown: datetime.timedelta = datetime.timedelta(seconds=60) #seconds to wait until next xp gain
 
 
 
