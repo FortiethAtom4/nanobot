@@ -1,9 +1,27 @@
 import datetime, random, logging
 logger = logging.getLogger(__name__)
-class User:
-    
 
-    xp_cooldown: datetime.timedelta = datetime.timedelta(seconds=60) #seconds to wait until next xp gain
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import Integer, String, DateTime
+
+from sqlalchemy.orm import DeclarativeBase
+
+class Base(DeclarativeBase):
+    pass
+
+class User(Base):
+    __tablename__ = "users"
+
+    xp_cooldown: datetime.timedelta = datetime.timedelta(seconds=1) #seconds to wait until next xp gain
+
+
+
+    name: Mapped[str] = mapped_column(String, primary_key=True)
+    level: Mapped[int] = mapped_column(Integer)
+    xp_current: Mapped[int] = mapped_column(Integer)
+    xp_total: Mapped[int] = mapped_column(Integer)
+    total_messages: Mapped[int] = mapped_column(Integer)
+    cooldown: Mapped[datetime.datetime] = mapped_column(DateTime)
 
     def __init__(self, name):
         self.name: str = name

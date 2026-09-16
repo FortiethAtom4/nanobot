@@ -2,6 +2,9 @@ import discord, logging, locale
 from discord.ext import commands, pages
 
 import config
+from utils.user import User
+
+from utils import db
 
 locale.setlocale(locale.LC_ALL, '')
 
@@ -16,14 +19,16 @@ class LevelPaginatorCog(commands.Cog):
 
     # Helper function for /levels.
     def get_pages(self):
-        self.num_pages = ((len(config.users) - 1) // self.num_per_page) + 1
+        all_users: list[User] = db.get_users()
+
+        self.num_pages = ((len(all_users) - 1) // self.num_per_page) + 1
         counter = 0
         self.pages = []
         for i in range(self.num_pages):
             page_string = ""
-            new_range = len(config.users) - counter if len(config.users) - counter < self.num_per_page else self.num_per_page
+            new_range = len(all_users) - counter if len(all_users) - counter < self.num_per_page else self.num_per_page
             for j in range(new_range):
-                user = config.users[counter]
+                user = all_users[counter]
                 page_string += f'''{counter + 1}. **{user.name}**  XP: {user.xp_total:n}  Level: {user.level}\n'''
                 counter += 1
             self.pages.append(discord.Embed(title="Leaderboard",description=page_string))
@@ -49,21 +54,31 @@ class LevelPaginatorCog(commands.Cog):
     )
     async def rank(self, ctx: discord.ApplicationContext, user: discord.Member = None): # user = discord.User
 
+        all_users = db.get_users()
+
         if user == None:
-            rank = next((i for i, user in enumerate(config.users) if user.name == ctx.user.name), -1)
-            user = config.users[rank]
-            await ctx.respond(f'''```You are rank {rank + 1} out of {len(config.users)} users.
-    Your current level: {user.level}
-    Total XP: {user.xp_total:n}
-    Total messages: {user.total_messages:n}
-    Progress to next level: {user.xp_current:n}/{user.get_level_req():n} ({round((user.xp_current)/user.get_level_req()*100,2)}%)```''')
+            this_user = db.get_user_by_name(ctx.author.name)
+            if this_user == None:
+                # never sent a message but used /rank, can just temp add them to this list
+                this_user = User(ctx.author.name)
+                all_users.append(this_user)
+
+            config.sort_users_by_rank(all_users)
+
+            rank = next((i for i, user in enumerate(all_users) if user.name == ctx.author.name), -1)
+            await ctx.respond(f'''```You are rank {rank + 1} out of {len(all_users)} users.
+    Your current level: {this_user.level}
+    Total XP: {this_user.xp_total:n}
+    Total messages: {this_user.total_messages:n}
+    Progress to next level: {this_user.xp_current:n}/{this_user.get_level_req():n} ({round((this_user.xp_current)/this_user.get_level_req()*100,2)}%)```''')
         else:
-            rank = next((i for i, u in enumerate(config.users) if u.name == user.name), -1)
+
+            rank = next((i for i, u in enumerate(all_users) if u.name == user.name), -1)
             if rank == -1:
                 await ctx.respond(f"`User {user.name} no longer exists or has not sent any messages since bot startup.`")
                 return
-            user_info = config.users[rank]
-            await ctx.respond(f'''```{user.name} is rank {rank + 1} out of {len(config.users)} users.
+            user_info = all_users[rank]
+            await ctx.respond(f'''```{user.name} is rank {rank + 1} out of {len(all_users)} users.
     Current level: {user_info.level}
     Total XP: {user_info.xp_total:n}
     Total messages: {user_info.total_messages:n}

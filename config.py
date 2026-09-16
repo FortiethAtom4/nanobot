@@ -1,7 +1,6 @@
 import os, dotenv
 
 #local imports
-from utils.timer import Timer
 from utils.user import User
 from utils.server import Server
 import logging, logging.handlers
@@ -16,16 +15,7 @@ cogs: list[str] = [
 # set when bot is started up
 start_time = 0
 
-#for keeping track of update timings
-update_timer = Timer()
-update_interval: int = 10 #time in minutes between updates
-
-#list of users, pulled from DB at bot start, sorted by total XP descending
-servers: list[Server] = []
-users: list[User] = []
-user_names: list[str] = []
-
-def sort_users_by_rank():
+def sort_users_by_rank(users: list[User]):
     users.sort(key = lambda x: x.xp_total, reverse=True)
 
 

@@ -10,23 +10,6 @@ logger = logging.getLogger(__name__)
 class AdminCog(commands.Cog):
     def __init__(self, bot):
         self.bot: discord.Bot = bot
-    
-    @discord.slash_command(
-        name="forceupdate",
-        guild_ids=config.GUILD_IDS,
-        description="Forces the bot to sync its data with the database. Owner-only."
-    )
-    @commands.is_owner()
-    async def force_update(self, ctx):
-        msg = await ctx.respond("Updating database...")
-        updates_successful = db.persist_updates()
-        if not updates_successful:
-            await msg.edit(content="Update failure, please check DB connection")
-            logger.warning("/forcepersist update failure")
-            return
-        await msg.edit(content="Updated successfully.")
-        logger.info("DB force-updated by owner")
-
 
     # /checkup
     # gives some tech info about NanoBot. 
@@ -75,7 +58,6 @@ Loading checkup results...```''')
         await ctx.delete()
         await ctx.send(m)
         
-    @force_update.error
     @checkup.error
     async def owner_error(self, ctx, error):
         if isinstance(error, commands.errors.NotOwner):

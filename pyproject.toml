@@ -24,5 +24,6 @@ dependencies = [
     "pycord==0.1.1",
     "pymongo==4.11.2",
     "python-dotenv==1.0.1",
+    "sqlalchemy>=2.0.53",
     "yarl==1.18.3",
 ]
