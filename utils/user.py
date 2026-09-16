@@ -14,8 +14,6 @@ class User(Base):
 
     xp_cooldown: datetime.timedelta = datetime.timedelta(seconds=60) #seconds to wait until next xp gain
 
-
-
     name: Mapped[str] = mapped_column(String, primary_key=True)
     level: Mapped[int] = mapped_column(Integer)
     xp_current: Mapped[int] = mapped_column(Integer)

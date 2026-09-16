@@ -44,7 +44,7 @@ swears = []
 with open('swears.txt') as swearfile:
     swears = swearfile.read().splitlines()
 
-key_words = ["key", "きー", "キー"]
+key_words = ["key", "きー", "キー","ねじ","ネジ","螺子"]
 
 HF_TOKEN = os.getenv("HF_TOKEN")
 
