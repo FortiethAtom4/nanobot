@@ -1,7 +1,7 @@
 import os, dotenv
 
 #local imports
-from utils.user import User
+from utils.models import User
 from utils.server import Server
 import logging, logging.handlers
 

@@ -19,8 +19,8 @@ class AdminCog(commands.Cog):
         description="OWNER: Gives technical information about the bot."
     )
     @commands.is_owner()
-    async def checkup(self, ctx): 
-        checkup = await ctx.respond(f'''```Hello, {ctx.user.name}! Thanks for checking on me.
+    async def checkup(self, ctx: discord.ApplicationContext): 
+        checkup = await ctx.respond(f'''```Hello, {ctx.author.name}! Thanks for checking on me.
 Loading checkup results...```''')
         duration: datetime.timedelta = (datetime.datetime.now() - config.start_time)
         duration = duration - datetime.timedelta(microseconds=duration.microseconds) #is this really how I have to do this
@@ -59,10 +59,10 @@ Loading checkup results...```''')
         await ctx.send(m)
         
     @checkup.error
-    async def owner_error(self, ctx, error):
+    async def owner_error(self, ctx: discord.ApplicationContext, error):
         if isinstance(error, commands.errors.NotOwner):
             await ctx.respond("You do not have permission to use this command.",ephemeral=True)
-            logger.info(f"User {ctx.user.name} blocked from using an owner-only command")
+            logger.info(f"User {ctx.author.name} blocked from using an owner-only command")
         else:
             await ctx.respond(f"An error occurred when attempting to perform this command: {error}",ephemeral=True)
 

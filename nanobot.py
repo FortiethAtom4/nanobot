@@ -30,8 +30,7 @@ async def on_ready():
     config.start_time = datetime.datetime.now()
     print(f'''Successfully logged in as {bot.user}.
 Current latency: {round(bot.latency*1000,3)}ms''')
-    all_users = db.get_users()
-    print(f"-> {'User data loaded.' if len(all_users) > 0 else 'Warning: no user data found.'}")
+    print(f"-> {'User data loaded.' if len(db.get_all_users()) > 0 else 'Warning: no user data found.'}")
     # sort_helper.start()
     # auto_update.start()
     # print("-> Background tasks started.")
@@ -42,8 +41,7 @@ Current latency: {round(bot.latency*1000,3)}ms''')
 async def on_message(message: discord.Message):
 
     if not message.author.bot:
-        levelup = db.gain_xp(message.author.name)
-
+        levelup = db.gain_xp(message.guild.id,message.author.id,message.author.name)
 
         # Nano gets a bit nervous if you mention the word "key."
         if any(x in message.content.lower() for x in config.key_words):    
@@ -59,7 +57,7 @@ async def on_message(message: discord.Message):
                 logger.warning(f"{message.author.name} said the no-no word \'{swear}\'")
 
         if levelup:
-            user = db.get_user_by_name(message.author.name)
+            user = db.get_user_by_ids(message.guild.id, message.author.id)
             await message.channel.send(f"Congratulations, <@{message.author.id}>! You are now **{user.level} Inches!**")
 
 # run the bot

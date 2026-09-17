@@ -2,15 +2,15 @@ import datetime, random, logging
 logger = logging.getLogger(__name__)
 
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import Integer, String, DateTime
+from sqlalchemy import BigInteger, Integer, String, DateTime
 
 from sqlalchemy.orm import DeclarativeBase
 
 class Base(DeclarativeBase):
     pass
 
-class User(Base):
-    __tablename__ = "users"
+class OldUser(Base):
+    __tablename__ = "old_users"
 
     xp_cooldown: datetime.timedelta = datetime.timedelta(seconds=60) #seconds to wait until next xp gain
 
@@ -20,14 +20,41 @@ class User(Base):
     xp_total: Mapped[int] = mapped_column(Integer)
     total_messages: Mapped[int] = mapped_column(Integer)
     cooldown: Mapped[datetime.datetime] = mapped_column(DateTime)
+    found: Mapped[int] = mapped_column(Integer,default=0)
 
-    def __init__(self, name):
+    def __init__(self, name: int):
         self.name: str = name
         self.level: int = 0
         self.xp_current: int = 0
         self.xp_total: int = 0
         self.total_messages: int = 0
         self.cooldown: datetime.datetime = datetime.datetime(2001,1,16)
+        self.found = 0
+
+class User(Base):
+    __tablename__ = "users"
+
+    xp_cooldown: datetime.timedelta = datetime.timedelta(seconds=1) #seconds to wait until next xp gain
+
+    server_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    name: Mapped[str] = mapped_column(String)
+    level: Mapped[int] = mapped_column(Integer)
+    xp_current: Mapped[int] = mapped_column(Integer)
+    xp_total: Mapped[int] = mapped_column(Integer)
+    total_messages: Mapped[int] = mapped_column(Integer)
+    cooldown: Mapped[datetime.datetime] = mapped_column(DateTime)
+
+    def __init__(self, server_id: int, user_id: int, name: int):
+        self.server_id: int = server_id
+        self.user_id: int = user_id
+        self.name: str = name
+        self.level: int = 0
+        self.xp_current: int = 0
+        self.xp_total: int = 0
+        self.total_messages: int = 0
+        self.cooldown: datetime.datetime = datetime.datetime(2001,1,16)
+
 
     def get_level_req(self):
         # not sure how python does pemdas

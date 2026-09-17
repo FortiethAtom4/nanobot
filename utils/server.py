@@ -1,4 +1,4 @@
-from utils.user import User
+from utils.models import User
 
 
 class Server:
