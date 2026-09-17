@@ -34,7 +34,7 @@ class OldUser(Base):
 class User(Base):
     __tablename__ = "users"
 
-    xp_cooldown: datetime.timedelta = datetime.timedelta(seconds=1) #seconds to wait until next xp gain
+    xp_cooldown: datetime.timedelta = datetime.timedelta(seconds=60) #seconds to wait until next xp gain
 
     server_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
