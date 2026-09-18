@@ -42,10 +42,14 @@ class LevelPaginatorCog(commands.Cog):
     )
     async def levels(self, ctx: discord.ApplicationContext):
         this_server_users = db.get_users(ctx.guild_id)
-        config.sort_users_by_rank(this_server_users)
 
-        paginator = pages.Paginator(pages=self.get_pages(this_server_users), disable_on_timeout=True, timeout=24*60*60, author_check=False)
-        await paginator.respond(ctx.interaction, ephemeral=False)
+        if len(this_server_users) > 0:
+            config.sort_users_by_rank(this_server_users)
+
+            paginator = pages.Paginator(pages=self.get_pages(this_server_users), disable_on_timeout=True, timeout=60*5, author_check=False)
+            await paginator.respond(ctx.interaction, ephemeral=False)
+        else:
+            await ctx.respond("No user data found for this server. This should change once users send messages.")
 
 
     # /rank
