@@ -20,26 +20,6 @@ engine = create_engine("sqlite:///nanobot.db",pool_pre_ping=True)
 
 Base.metadata.create_all(engine)
 
-# temp function to get all the mongodb stuff.
-# def mongo_migrate():
-#     client = MongoClient(config.db_URL)
-#     result = client['db']['users'].find({},{'_id': False})
-
-#     all_users = result.to_list()
-
-#     with Session(engine) as session:
-#         for user in all_users:
-#             temp = User(user['name'])
-#             temp.level = user['level']
-#             temp.xp_total = user['xp_total']
-#             temp.xp_current = user['xp_current']
-#             temp.total_messages = user['total_messages']
-#             temp.cooldown = user['cooldown']
-
-#             session.add(temp)
-
-#         session.commit()
-
 # tests connection to database.
 def test_connection() -> bool:
     try:
@@ -58,6 +38,10 @@ def get_users(server_id: int) -> list[User]:
        to_return = list[User](session.scalars(select(User).where(User.server_id == server_id)))
        config.sort_users_by_rank(to_return)
        return to_return
+
+def get_user_by_name(server_id: int, name:str):
+    with Session(engine) as session:
+       return session.scalar(select(User).where(User.name == name and User.server_id == server_id).limit(1))
 
 def get_old_user_by_name(name: str) -> OldUser | None:
     with Session(engine) as session:
@@ -112,7 +96,7 @@ def init_from_old_user(server_id: int, user_id: int, other_user: OldUser):
     return user
 
 def port_user(server_id: int, user_id: int, name: str) -> bool:
-    is_already_user = get_user_by_ids(server_id,user_id)
+    is_already_user = get_user_by_name(server_id,name)
     if is_already_user != None:
         return False
 
