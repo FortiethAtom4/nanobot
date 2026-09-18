@@ -46,7 +46,7 @@ class LevelPaginatorCog(commands.Cog):
         if len(this_server_users) > 0:
             config.sort_users_by_rank(this_server_users)
 
-            paginator = pages.Paginator(pages=self.get_pages(this_server_users), disable_on_timeout=True, timeout=60*5, author_check=False)
+            paginator = pages.Paginator(pages=self.get_pages(this_server_users), disable_on_timeout=True, timeout=60*60, author_check=False)
             await paginator.respond(ctx.interaction, ephemeral=False)
         else:
             await ctx.respond("No user data found for this server. This should change once users send messages.")

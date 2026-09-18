@@ -19,11 +19,6 @@ bot = commands.Bot(intents=intents)
 for cog in config.cogs:
     bot.load_extension(f"cogs.{cog}")
 
-# updates the leaderboard regularly
-# @tasks.loop(seconds=10)
-# async def sort_helper():
-#     config.sort_users_by_rank()
-
 # Print statement when the bot successfully comes online.
 @bot.event
 async def on_ready():
@@ -31,9 +26,6 @@ async def on_ready():
     print(f'''Successfully logged in as {bot.user}.
 Current latency: {round(bot.latency*1000,3)}ms''')
     print(f"-> {'User data loaded.' if len(db.get_all_users()) > 0 else 'Warning: no user data found.'}")
-    # sort_helper.start()
-    # auto_update.start()
-    # print("-> Background tasks started.")
 
 
 # Bot's main event loop. Gives xp to users who send messages.
