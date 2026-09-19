@@ -99,10 +99,19 @@ class LevelPaginatorCog(commands.Cog):
     async def port_user(self, ctx: discord.ApplicationContext, id, username: str):
         success = db.port_user(ctx.guild_id,id,username)
 
-        if success:
-            await ctx.respond(f"Successfully ported user {username}")
-        else:
-            await ctx.respond(f"Failed to port user {username}. They may not exist in the old users table, or they may already exist in the new table.")
+        match success:
+            case 0:
+                await ctx.respond(f"Successfully ported user {username}")
+            
+            case 1:
+                await ctx.respond(f"Failed to port user {username}: A user by that name already exists in the new table.")
+
+            case 2:
+                await ctx.respond(f"Failed to port user {username}: No user by that name exists in the old table.")
+
+            case 3:
+                await ctx.respond(f"Failed to port user {username}: There was a SQL error on insert. Is your ID unique?.")
+
         # msgs = await ctx.channel.history(200).flatten()
 
         # await ctx.respond(msgs)

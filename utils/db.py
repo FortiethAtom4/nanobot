@@ -95,22 +95,26 @@ def init_from_old_user(server_id: int, user_id: int, other_user: OldUser):
 
     return user
 
-def port_user(server_id: int, user_id: int, name: str) -> bool:
+def port_user(server_id: int, user_id: int, name: str) -> int:
     is_already_user = get_user_by_name(server_id,name)
     if is_already_user != None:
-        return False
+        return 1
 
     the_old_user = get_old_user_by_name(name)
     if the_old_user == None:
-        return False
+        return 2
 
     new_user = init_from_old_user(server_id,user_id,the_old_user)
     with Session(engine) as session:
-        old_user = session.query(OldUser).filter(OldUser.name == name).first()
-        old_user.found = 1
-        session.add(new_user)
-        session.commit()
+        try:
+            old_user = session.query(OldUser).filter(OldUser.name == name).first()
+            old_user.found = 1
+            session.add(new_user)
+            session.commit()
+        except Exception as e:
+            logger.error(e)
+            return 3
 
-    return True
+    return 0
 
     
