@@ -110,7 +110,7 @@ class LevelPaginatorCog(commands.Cog):
                 await ctx.respond(f"Failed to port user {username}: No user by that name exists in the old table.")
 
             case 3:
-                await ctx.respond(f"Failed to port user {username}: There was a SQL error on insert. Is your ID unique?.")
+                await ctx.respond(f"Failed to port user {username}: There was a SQL error on insert. Is your ID unique?")
 
         # msgs = await ctx.channel.history(200).flatten()
 
