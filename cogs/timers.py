@@ -39,7 +39,8 @@ class TimerCog(commands.Cog):
 
                 await ctx.respond(f"Timer started. You'll get pinged in {new_timer}.")
                 msg = await ctx.interaction.original_response()
-                new_timer.set_message_id(msg.id)
+                if msg:
+                    new_timer.set_message_id(msg.id)
 
         except:
             logger.error(traceback.format_exc())
@@ -51,10 +52,17 @@ class TimerCog(commands.Cog):
         for t in self.timers:
             stopped: bool = t.increment()
             if stopped:
-                channel = await self.bot.fetch_channel(t.channel_id)
-                msg = await channel.fetch_message(t.message_id)
-                if channel != None:
-                    await msg.reply(f"<@{t.user_id}>! Your timer is up!")
+                try:
+                    channel = await self.bot.fetch_channel(t.channel_id)
+                    try:
+                        msg = await channel.fetch_message(t.message_id)
+                        await msg.reply(f"<@{t.user_id}>! Your timer is up!")
+                    except:
+                        # just chuck the msg in the channel if the original message is gone
+                        await channel.send(f"<@{t.user_id}>! Your timer is up!")
+
+                except Exception as e:
+                    logger.error(f"Failed to get channel to send timer message: {e}")
             else:
                 remaining_timers.append(t)
 
