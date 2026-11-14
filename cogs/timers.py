@@ -1,6 +1,7 @@
 import discord, logging, locale, datetime
 from discord.ext import commands, tasks
-from discord.client import Client
+
+import traceback
 
 import config
 from utils.models import User
@@ -37,9 +38,11 @@ class TimerCog(commands.Cog):
                 self.timers.append(new_timer)
 
                 await ctx.respond(f"Timer started. You'll get pinged in {new_timer}.")
+                msg = await ctx.interaction.original_response()
+                new_timer.set_message_id(msg.id)
 
-        except Exception as e:
-            print(e)
+        except:
+            logger.error(traceback.format_exc())
             await ctx.respond("Something went wrong starting your timer. Please try again later.",ephemeral=True)
 
     @tasks.loop(seconds=1)
@@ -48,9 +51,10 @@ class TimerCog(commands.Cog):
         for t in self.timers:
             stopped: bool = t.increment()
             if stopped:
-                channel = await self.bot.fetch_channel(int(t.channel_id))
+                channel = await self.bot.fetch_channel(t.channel_id)
+                msg = await channel.fetch_message(t.message_id)
                 if channel != None:
-                    await channel.send(f"<@{t.user_id}>! Your timer is up!")
+                    await msg.reply(f"<@{t.user_id}>! Your timer is up!")
             else:
                 remaining_timers.append(t)
 

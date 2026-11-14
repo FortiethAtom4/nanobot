@@ -2,7 +2,7 @@ import datetime
 # a simple timer for me to use.
 
 class Timer:
-    def __init__(self,server_id: str, user_id: str, channel_id: str):
+    def __init__(self,server_id: int, user_id: int, channel_id: int):
         self.server_id = server_id
         self.user_id = user_id
         self.channel_id = channel_id
@@ -11,6 +11,9 @@ class Timer:
         self.end_time: datetime.datetime = datetime.datetime.now() 
         self.pause_time: datetime.datetime = None
         self.stopped = True
+
+    def set_message_id(self,message_id: int):
+        self.message_id = message_id
 
     def start(self,end_time: datetime.timedelta):
         if not self.stopped:
