@@ -2,7 +2,11 @@ import datetime
 # a simple timer for me to use.
 
 class Timer:
-    def __init__(self):
+    def __init__(self,server_id: str, user_id: str, channel_id: str):
+        self.server_id = server_id
+        self.user_id = user_id
+        self.channel_id = channel_id
+
         self.cur_time: datetime.datetime = datetime.datetime.now() 
         self.end_time: datetime.datetime = datetime.datetime.now() 
         self.pause_time: datetime.datetime = None
@@ -70,5 +74,8 @@ class Timer:
             return 1
         return 2
     
-    def print_timer(self):
-        return datetime.timedelta(seconds=int((self.end_time - self.cur_time).total_seconds()))
+    def __str__(self):
+        return str(datetime.timedelta(seconds=int((self.end_time - self.cur_time).total_seconds())))
+
+    def __repr__(self):
+        return self.__str__()

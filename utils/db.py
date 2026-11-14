@@ -13,8 +13,7 @@ from sqlalchemy.orm import Session
 from pymongo import MongoClient
 import config
 
-
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 engine = create_engine("sqlite:///nanobot.db",pool_pre_ping=True)
 
@@ -57,6 +56,8 @@ def gain_xp(server_id: int, user_id: int, name: str) -> bool:
     is_levelup = False
     with Session(engine) as session:
         if this_user == None:
+
+            # check to see if this user was in the old system, if so transfer their data to the new database
             this_user = User(server_id,user_id, name)
             old_user = get_old_user_by_name(name)
             if old_user != None and (old_user.found == 0 or old_user.found == None):
@@ -112,7 +113,7 @@ def port_user(server_id: int, user_id: int, name: str) -> int:
             session.add(new_user)
             session.commit()
         except Exception as e:
-            logger.error(e)
+            log.error(e)
             return 3
 
     return 0
