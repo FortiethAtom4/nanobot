@@ -2,7 +2,7 @@ import datetime, random, logging
 logger = logging.getLogger(__name__)
 
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import BigInteger, Integer, String, DateTime
+from sqlalchemy import BigInteger, Boolean, Integer, String, DateTime
 
 from sqlalchemy.orm import DeclarativeBase
 
@@ -83,3 +83,98 @@ class User(Base):
                 levelup = True
                 self.level_up()
         return levelup
+
+class Timer(Base):
+
+    __tablename__ = "timers"
+
+    timer_id: Mapped[int] = mapped_column(Integer,primary_key=True,autoincrement=True)
+
+    server_id: Mapped[int] = mapped_column(BigInteger)
+    user_id: Mapped[int] = mapped_column(BigInteger)
+    channel_id: Mapped[int] = mapped_column(BigInteger)
+    message_id: Mapped[int] = mapped_column(BigInteger, nullable=True)
+
+    end_time: Mapped[datetime.datetime] = mapped_column(DateTime)
+    pause_time: Mapped[datetime.datetime] = mapped_column(DateTime,nullable=True)
+    stopped: Mapped[bool] = mapped_column(Boolean)
+
+    def __init__(self,server_id: int, user_id: int, channel_id: int):
+        self.server_id = server_id
+        self.user_id = user_id
+        self.channel_id = channel_id
+
+        self.cur_time: datetime.datetime = datetime.datetime.now() 
+        self.end_time: datetime.datetime = datetime.datetime.now() 
+        self.pause_time: datetime.datetime = None
+        self.stopped = True
+
+    def set_message_id(self,message_id: int):
+        self.message_id = message_id
+
+    def start(self,end_time: datetime.timedelta):
+        if not self.stopped:
+            return False
+        self.end_time = datetime.datetime.now() + end_time
+        self.stopped = False
+        return True
+
+    # returns true if time is up, else false
+    def increment(self) -> bool | None:
+        self.cur_time = datetime.datetime.now()
+        if self.cur_time >= self.end_time:
+            self.stopped = True
+            self.pause_time = None
+        
+        return self.stopped
+
+    # returns true if self.stopped is already true, else false
+    def pause(self):
+        if self.stopped:
+            return True
+        self.pause_time = datetime.datetime.now()
+        self.stopped = True
+        return False
+
+    # returns false if self.stopped is already false, else true
+    def unpause(self) -> bool:
+        if not self.stopped:
+            return False
+        temp_unpause_delta: datetime.timedelta = self.end_time - self.pause_time
+        self.end_time = datetime.datetime.now() + temp_unpause_delta
+        self.stopped = False
+        self.pause_time = None
+        return True
+    
+    def stop(self) -> bool:
+        if self.paused_or_stopped() != 0:
+            self.stopped = True
+            self.end_time = datetime.datetime.now()
+            self.pause_time = None
+            return True
+        return False
+    
+    def toggle(self):
+        if self.stopped:
+            return self.unpause()
+        return self.pause()
+    
+    def add_time(self,hours: int, minutes: int):
+        time_added = datetime.timedelta(hours=hours,minutes=minutes)
+        self.end_time += time_added
+        self.increment() # updates self.stopped if subtracted time goes over time limit
+        return time_added
+    
+    # returns 0 if stopped, 1 if paused, 2 if running
+    def paused_or_stopped(self) -> 0 | 1 | 2:
+        if self.stopped:
+            if self.pause_time == None:
+                return 0
+            return 1
+        return 2
+    
+    def __str__(self):
+        return str(datetime.timedelta(seconds=int((self.end_time - self.cur_time).total_seconds())))
+
+    def __repr__(self):
+        return self.__str__()

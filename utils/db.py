@@ -1,16 +1,12 @@
-# import pymongo
-# import pymongo.collection
 import logging
 
-
 # local imports
-from utils.models import OldUser, User, Base
+from utils.models import OldUser, User, Base, Timer
 import datetime
 
-from sqlalchemy import create_engine, insert, select, Sequence, delete
+from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
-from pymongo import MongoClient
 import config
 
 log = logging.getLogger(__name__)
@@ -117,5 +113,46 @@ def port_user(server_id: int, user_id: int, name: str) -> int:
             return 3
 
     return 0
+
+def set_timer(the_timer: Timer) -> bool:
+    with Session(engine,expire_on_commit=False) as session:
+        try:
+            session.add(the_timer)
+            session.commit()
+            return True
+
+        except Exception as e:
+            log.error(f"failed to set a new timer: {e}")
+            return False
+
+def remove_timer(the_timer: Timer)-> bool:
+    with Session(engine) as session:
+        try:
+            session.delete(the_timer)
+            session.commit()
+
+        except Exception as e:
+            log.error(f"failed to delete a timer: {e}")
+            return False
+
+def get_all_timers()-> list[Timer]:
+    with Session(engine) as session:
+        try:
+            return session.query(Timer).all()
+
+        except Exception as e:
+            log.error(f"failed to get all timers: {e}")
+            return []
+
+def get_timer_by_id(id: int):
+    with Session(engine) as session:
+        try:
+            return session.query(Timer).filter(Timer.timer_id == id).first()
+
+        except Exception as e:
+            log.error(f"failed to get a timer with id {str(id)}: {e}")
+            return None
+
+
 
     

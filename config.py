@@ -1,8 +1,8 @@
-import os, dotenv
+import os, dotenv, sys
 
 #local imports
 from utils.models import User
-from utils.server import Server
+from utils.server import Server #one day
 import logging, logging.handlers
 
 ########## ADD YOUR COG FILE NAME TO THIS LIST ##########
@@ -19,14 +19,22 @@ start_time = 0
 def sort_users_by_rank(users: list[User]):
     users.sort(key = lambda x: x.xp_total, reverse=True)
 
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
 #log formatting
 log_formatter = '%(asctime)s :: %(name)s :: %(levelname)s :: %(message)s'
 formatter = logging.Formatter(log_formatter)
+
+# log to file
 log_handler = logging.handlers.RotatingFileHandler("bot.log",maxBytes=1000000)
 log_handler.setFormatter(formatter)
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
 logger.addHandler(log_handler)
+
+# log to console
+console_log_handler = logging.StreamHandler(sys.stdout)
+console_log_handler.setFormatter(formatter)
+logger.addHandler(console_log_handler)
 
 # private variables from the .env
 dotenv.load_dotenv(dotenv.find_dotenv(".env"))
